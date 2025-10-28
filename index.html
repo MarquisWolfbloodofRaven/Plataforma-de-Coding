@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeAI Platform - IDE Full Stack com IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        dark: {
+                            bg: '#181818',
+                            surface: '#1e1e1e',
+                            elevated: '#252525',
+                            border: '#333333'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .editor-textarea {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            tab-size: 4;
+        }
+
+        .terminal-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #444;
+        }
+
+        .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        .file-item:hover {
+            background: rgba(93, 92, 222, 0.1);
+        }
+
+        .file-item.active {
+            background: rgba(93, 92, 222, 0.2);
+            border-left: 3px solid #5D5CDE;
+        }
+
+        .tab-item {
+            transition: all 0.2s;
+        }
+
+        .tab-item.active {
+            background: #5D5CDE;
+            color: white;
+        }
+
+        .ai-message {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-dots::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        pre[class*="language-"] {
+            margin: 0;
+            border-radius: 4px;
+        }
+
+        .resizer {
+            cursor: col-resize;
+            width: 4px;
+            background: transparent;
+            transition: background 0.2s;
+        }
+
+        .resizer:hover {
+            background: #5D5CDE;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-dark-bg text-gray-900 dark:text-gray-100">
+
+    <!-- Header -->
+    <header class="h-14 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border flex items-center justify-between px-4 shadow-sm">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-code text-2xl text-primary"></i>
+                <h1 class="text-xl font-bold">CodeAI Platform</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-2 text-sm">
+                <button onclick="app.newFile()" class="px-3 py-1.5 bg-primary text-white rounded hover:bg-opacity-90 transition">
+                    <i class="fas fa-file-plus mr-1"></i> Novo Arquivo
+                </button>
+                <button onclick="app.saveFile()" class="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                    <i class="fas fa-save mr-1"></i> Salvar
+                </button>
+                <button onclick="app.runCode()" class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-play mr-1"></i> Executar
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <select onchange="app.changeLanguage(this.value)" class="px-3 py-1.5 bg-gray-100 dark:bg-dark-elevated border border-gray-300 dark:border-dark-border rounded text-base">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="typescript">TypeScript</option>
+                <option value="json">JSON</option>
+            </select>
+            <button onclick="app.toggleTheme()" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-dark-elevated transition">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:inline"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex h-[calc(100vh-3.5rem)]">
+
+        <!-- Sidebar - File Explorer -->
+        <aside id="sidebar" class="w-64 bg-gray-50 dark:bg-dark-surface border-r border-gray-200 dark:border-dark-border flex flex-col">
+            <div class="p-3 border-b border-gray-200 dark:border-dark-border">
+                <h2 class="font-semibold text-sm flex items-center">
+                    <i class="fas fa-folder-open mr-2 text-primary"></i>
+                    EXPLORADOR DE ARQUIVOS
+                </h2>
+            </div>
+            <div id="fileList" class="flex-1 overflow-y-auto scrollbar-thin p-2">
+                <!-- Files will be listed here -->
+            </div>
+            <div class="p-3 border-t border-gray-200 dark:border-dark-border">
+                <button onclick="app.showTemplates()" class="w-full px-3 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition text-sm">
+                    <i class="fas fa-magic mr-2"></i>Templates
+                </button>
+            </div>
+        </aside>
+
+        <!-- Resizer -->
+        <div class="resizer" id="resizer"></div>
+
+        <!-- Editor Area -->
+        <main class="flex-1 flex flex-col min-w-0">
+
+            <!-- Tabs -->
+            <div id="tabs" class="flex items-center bg-gray-100 dark:bg-dark-elevated border-b border-gray-200 dark:border-dark-border overflow-x-auto scrollbar-thin">
+                <!-- Tabs will be added here -->
+            </div>
+
+            <!-- Editor -->
+            <div class="flex-1 relative">
+                <textarea
+                    id="editor"
+                    class="editor-textarea w-full h-full p-4 bg-white dark:bg-dark-bg text-gray-900 dark:text-gray-100 border-none outline-none scrollbar-thin"
+                    spellcheck="false"
+                    placeholder="Comece a codificar... ou use o Assistente de IA para ajuda!"
+                ></textarea>
+            </div>
+
+            <!-- Bottom Panel - Terminal/Preview/AI -->
+            <div class="h-80 border-t border-gray-200 dark:border-dark-border flex flex-col">
+                <div class="flex bg-gray-100 dark:bg-dark-elevated border-b border-gray-200 dark:border-dark-border">
+                    <button onclick="app.switchPanel('terminal')" class="tab-item px-4 py-2 text-sm font-medium" data-panel="terminal">
+                        <i class="fas fa-terminal mr-2"></i>Terminal
+                    </button>
+                    <button onclick="app.switchPanel('preview')" class="tab-item px-4 py-2 text-sm font-medium" data-panel="preview">
+                        <i class="fas fa-eye mr-2"></i>Preview
+                    </button>
+                    <button onclick="app.switchPanel('ai')" class="tab-item active px-4 py-2 text-sm font-medium" data-panel="ai">
+                        <i class="fas fa-robot mr-2"></i>Assistente IA
+                    </button>
+                </div>
+
+                <!-- Terminal Panel -->
+                <div id="terminal-panel" class="hidden flex-1 flex flex-col bg-black text-green-400">
+                    <div id="terminalOutput" class="terminal-output flex-1 overflow-y-auto scrollbar-thin p-4"></div>
+                    <div class="flex items-center p-2 border-t border-gray-700">
+                        <span class="mr-2">$</span>
+                        <input
+                            type="text"
+                            id="terminalInput"
+                            class="flex-1 bg-transparent border-none outline-none text-base"
+                            placeholder="Digite um comando..."
+                            onkeypress="if(event.key==='Enter') app.executeCommand(this.value); this.value='';"
+                        >
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div id="preview-panel" class="hidden flex-1 bg-white dark:bg-dark-bg">
+                    <iframe id="previewFrame" class="w-full h-full border-none"></iframe>
+                </div>
+
+                <!-- AI Assistant Panel -->
+                <div id="ai-panel" class="flex-1 flex flex-col bg-gray-50 dark:bg-dark-surface">
+                    <div id="aiChat" class="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4"></div>
+                    <div class="p-4 border-t border-gray-200 dark:border-dark-border">
+                        <div class="flex space-x-2">
+                            <input
+                                type="text"
+                                id="aiInput"
+                                class="flex-1 px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-bg text-base"
+                                placeholder="Peça ajuda à IA: 'crie uma função para...', 'explique este código', etc."
+                                onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); app.sendToAI(); }"
+                            >
+                            <button onclick="app.sendToAI()" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <button onclick="app.quickAI('Explique este código')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
+                                Explicar código
+                            </button>
+                            <button onclick="app.quickAI('Otimize este código')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
+                                Otimizar
+                            </button>
+                            <button onclick="app.quickAI('Encontre bugs neste código')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
+                                Encontrar bugs
+                            </button>
+                            <button onclick="app.quickAI('Adicione comentários')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
+                                Comentar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Templates Modal -->
+    <div id="templatesModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-dark-surface rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-dark-border flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Templates de Código</h2>
+                <button onclick="app.hideTemplates()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto scrollbar-thin" style="max-height: calc(90vh - 80px);">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Templates will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        const app = {
+            currentFile: null,
+            currentLanguage: 'javascript',
+            files: {},
+            fileCounter: 0,
+            activePanel: 'ai',
+            terminalHistory: [],
+
+            init() {
+                // Create welcome file
+                this.createFile('welcome.js', `// Bem-vindo ao CodeAI Platform! 🚀
+// Uma IDE Full Stack completa com Assistente de IA integrado
+
+// Funcionalidades:
+// ✅ Editor de código com syntax highlighting
+// ✅ Sistema de arquivos virtual
+// ✅ Terminal integrado
+// ✅ Preview de aplicações HTML/CSS/JS
+// ✅ Assistente de IA ilimitado para ajuda na codificação
+// ✅ Templates prontos
+// ✅ Suporte a múltiplas linguagens
+
+// Comece criando um novo arquivo ou usando um template!
+// Use o Assistente de IA para ajuda na codificação.
+
+function helloWorld() {
+    console.log("Hello, CodeAI Platform!");
+    return "Pronto para codificar! 💻";
+}
+
+helloWorld();
+`, 'javascript');
+
+                this.openFile('welcome.js');
+                this.setupEditor();
+                this.setupResizer();
+                this.addWelcomeAIMessage();
+
+                // Register AI handler
+                if (window.Poe && window.Poe.registerHandler) {
+                    window.Poe.registerHandler("code-ai-handler", (result, context) => {
+                        this.handleAIResponse(result, context);
+                    });
+                }
+            },
+
+            setupEditor() {
+                const editor = document.getElementById('editor');
+                editor.addEventListener('input', () => {
+                    if (this.currentFile) {
+                        this.files[this.currentFile].content = editor.value;
+                    }
+                });
+
+                // Tab support
+                editor.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = editor.selectionStart;
+                        const end = editor.selectionEnd;
+                        editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+                        editor.selectionStart = editor.selectionEnd = start + 4;
+                    }
+                });
+            },
+
+            setupResizer() {
+                const resizer = document.getElementById('resizer');
+                const sidebar = document.getElementById('sidebar');
+                let isResizing = false;
+
+                resizer.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    document.body.style.cursor = 'col-resize';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    const newWidth = e.clientX;
+                    if (newWidth >= 200 && newWidth <= 500) {
+                        sidebar.style.width = newWidth + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isResizing = false;
+                    document.body.style.cursor = 'default';
+                });
+            },
+
+            createFile(name, content = '', language = 'javascript') {
+                this.files[name] = {
+                    name,
+                    content,
+                    language
+                };
+                this.renderFileList();
+            },
+
+            newFile() {
+                const name = this.showPromptDialog('Nome do novo arquivo:', `file${++this.fileCounter}.${this.getExtension(this.currentLanguage)}`);
+                if (!name) return;
+
+                if (this.files[name]) {
+                    this.showAlertDialog('Um arquivo com este nome já existe!');
+                    return;
+                }
+
+                this.createFile(name, '', this.currentLanguage);
+                this.openFile(name);
+            },
+
+            openFile(name) {
+                if (!this.files[name]) return;
+
+                this.currentFile = name;
+                const file = this.files[name];
+
+                document.getElementById('editor').value = file.content;
+                this.currentLanguage = file.language;
+
+                // Update language selector
+                document.querySelector('select').value = file.language;
+
+                this.renderFileList();
+                this.renderTabs();
+            },
+
+            saveFile() {
+                if (!this.currentFile) return;
+
+                const content = document.getElementById('editor').value;
+                this.files[this.currentFile].content = content;
+
+                this.addTerminalLine(`✓ Arquivo '${this.currentFile}' salvo com sucesso!`, 'text-green-400');
+                this.showNotification('Arquivo salvo!');
+            },
+
+            deleteFile(name) {
+                this.showConfirmDialog(`Deseja realmente excluir '${name}'?`, () => {
+                    delete this.files[name];
+                    if (this.currentFile === name) {
+                        const remaining = Object.keys(this.files);
+                        this.currentFile = remaining.length > 0 ? remaining[0] : null;
+                        if (this.currentFile) {
+                            this.openFile(this.currentFile);
+                        } else {
+                            document.getElementById('editor').value = '';
+                        }
+                    }
+                    this.renderFileList();
+                    this.renderTabs();
+                });
+            },
+
+            renderFileList() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+
+                Object.keys(this.files).forEach(name => {
+                    const file = this.files[name];
+                    const div = document.createElement('div');
+                    div.className = `file-item flex items-center justify-between p-2 rounded cursor-pointer ${this.currentFile === name ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <div class="flex items-center flex-1 min-w-0" onclick="app.openFile('${name}')">
+                            <i class="fas ${this.getFileIcon(file.language)} mr-2 text-primary"></i>
+                            <span class="truncate text-sm">${name}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); app.deleteFile('${name}')" class="ml-2 text-gray-400 hover:text-red-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    fileList.appendChild(div);
+                });
+            },
+
+            renderTabs() {
+                const tabs = document.getElementById('tabs');
+                tabs.innerHTML = '';
+
+                Object.keys(this.files).forEach(name => {
+                    const button = document.createElement('button');
+                    button.className = `tab-item px-4 py-2 text-sm border-r border-gray-200 dark:border-dark-border ${this.currentFile === name ? 'active' : ''}`;
+                    button.innerHTML = `
+                        <span>${name}</span>
+                        <i class="fas fa-times ml-2 hover:text-red-500" onclick="event.stopPropagation(); app.deleteFile('${name}')"></i>
+                    `;
+                    button.onclick = (e) => {
+                        if (e.target.tagName !== 'I') {
+                            this.openFile(name);
+                        }
+                    };
+                    tabs.appendChild(button);
+                });
+            },
+
+            getFileIcon(language) {
+                const icons = {
+                    javascript: 'fa-js-square',
+                    python: 'fa-python',
+                    html: 'fa-html5',
+                    css: 'fa-css3-alt',
+                    typescript: 'fa-code',
+                    json: 'fa-brackets-curly'
+                };
+                return icons[language] || 'fa-file-code';
+            },
+
+            getExtension(language) {
+                const extensions = {
+                    javascript: 'js',
+                    python: 'py',
+                    html: 'html',
+                    css: 'css',
+                    typescript: 'ts',
+                    json: 'json'
+                };
+                return extensions[language] || 'txt';
+            },
+
+            changeLanguage(language) {
+                this.currentLanguage = language;
+                if (this.currentFile) {
+                    this.files[this.currentFile].language = language;
+                    this.renderFileList();
+                }
+            },
+
+            switchPanel(panel) {
+                this.activePanel = panel;
+
+                document.querySelectorAll('[data-panel]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-panel="${panel}"]`).classList.add('active');
+
+                document.getElementById('terminal-panel').classList.add('hidden');
+                document.getElementById('preview-panel').classList.add('hidden');
+                document.getElementById('ai-panel').classList.add('hidden');
+
+                document.getElementById(`${panel}-panel`).classList.remove('hidden');
+            },
+
+            runCode() {
+                const code = document.getElementById('editor').value;
+
+                if (this.currentLanguage === 'html' || this.currentFile?.endsWith('.html')) {
+                    this.switchPanel('preview');
+                    const iframe = document.getElementById('previewFrame');
+                    iframe.srcdoc = code;
+                    this.addTerminalLine('✓ Preview HTML renderizado', 'text-green-400');
+                } else if (this.currentLanguage === 'javascript') {
+                    this.switchPanel('terminal');
+                    try {
+                        const result = eval(code);
+                        this.addTerminalLine(`✓ Executado com sucesso`, 'text-green-400');
+                        if (result !== undefined) {
+                            this.addTerminalLine(`Resultado: ${JSON.stringify(result)}`, 'text-blue-400');
+                        }
+                    } catch (error) {
+                        this.addTerminalLine(`✗ Erro: ${error.message}`, 'text-red-400');
+                    }
+                } else {
+                    this.addTerminalLine(`⚠ Execução direta não suportada para ${this.currentLanguage}. Use o terminal.`, 'text-yellow-400');
+                    this.switchPanel('terminal');
+                }
+            },
+
+            executeCommand(cmd) {
+                if (!cmd.trim()) return;
+
+                this.terminalHistory.push(cmd);
+                this.addTerminalLine(`$ ${cmd}`, 'text-green-400');
+
+                const parts = cmd.trim().split(' ');
+                const command = parts[0];
+
+                switch(command) {
+                    case 'clear':
+                        document.getElementById('terminalOutput').innerHTML = '';
+                        break;
+                    case 'ls':
+                        Object.keys(this.files).forEach(name => {
+                            this.addTerminalLine(name, 'text-blue-400');
+                        });
+                        break;
+                    case 'cat':
+                        if (parts[1] && this.files[parts[1]]) {
+                            this.addTerminalLine(this.files[parts[1]].content);
+                        } else {
+                            this.addTerminalLine('Arquivo não encontrado', 'text-red-400');
+                        }
+                        break;
+                    case 'help':
+                        this.addTerminalLine('Comandos disponíveis:', 'text-yellow-400');
+                        this.addTerminalLine('  ls - Listar arquivos');
+                        this.addTerminalLine('  cat <arquivo> - Ver conteúdo');
+                        this.addTerminalLine('  clear - Limpar terminal');
+                        this.addTerminalLine('  help - Mostrar ajuda');
+                        break;
+                    default:
+                        this.addTerminalLine(`Comando não encontrado: ${command}. Digite 'help' para ver comandos disponíveis.`, 'text-red-400');
+                }
+
+                document.getElementById('terminalInput').value = '';
+            },
+
+            addTerminalLine(text, className = 'text-green-400') {
+                const output = document.getElementById('terminalOutput');
+                const line = document.createElement('div');
+                line.className = className;
+                line.textContent = text;
+                output.appendChild(line);
+                output.scrollTop = output.scrollHeight;
+            },
+
+            addWelcomeAIMessage() {
+                const aiChat = document.getElementById('aiChat');
+                const msg = document.createElement('div');
+                msg.className = 'ai-message';
+                msg.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div class="flex-1 bg-white dark:bg-dark-elevated rounded-lg p-4 shadow-sm">
+                            <div class="font-semibold mb-2">Assistente IA</div>
+                            <div class="text-gray-700 dark:text-gray-300">
+                                Olá! 👋 Sou seu assistente de IA para codificação. Posso ajudá-lo com:
+                                <ul class="list-disc ml-5 mt-2 space-y-1">
+                                    <li>Escrever código em qualquer linguagem</li>
+                                    <li>Explicar e otimizar código existente</li>
+                                    <li>Encontrar e corrigir bugs</li>
+                                    <li>Sugerir melhorias e boas práticas</li>
+                                    <li>Criar funções e componentes completos</li>
+                                </ul>
+                                <p class="mt-3">Como posso ajudá-lo hoje?</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                aiChat.appendChild(msg);
+            },
+
+            async sendToAI() {
+                const input = document.getElementById('aiInput');
+                const message = input.value.trim();
+                if (!message) return;
+
+                // Add user message
+                this.addAIMessage(message, 'user');
+                input.value = '';
+
+                // Add loading message
+                const loadingId = 'loading-' + Date.now();
+                this.addAIMessage('Processando', 'ai', true, loadingId);
+
+                // Get current code context
+                const currentCode = document.getElementById('editor').value;
+                const context = currentCode ? `\n\nCódigo atual (${this.currentLanguage}):\n\`\`\`${this.currentLanguage}\n${currentCode}\n\`\`\`` : '';
+
+                const prompt = `${message}${context}`;
+
+                try {
+                    if (window.Poe && window.Poe.sendUserMessage) {
+                        await window.Poe.sendUserMessage(
+                            `@Claude-Sonnet-4.5 ${prompt}`,
+                            {
+                                handler: "code-ai-handler",
+                                stream: true,
+                                openChat: false,
+                                handlerContext: { loadingId }
+                            }
+                        );
+                    } else {
+                        // Fallback if Poe API not available
+                        document.getElementById(loadingId)?.remove();
+                        this.addAIMessage('API do Poe não disponível. Certifique-se de que está usando este app no Poe.', 'ai');
+                    }
+                } catch (error) {
+                    document.getElementById(loadingId)?.remove();
+                    this.addAIMessage(`Erro: ${error.message}`, 'ai');
+                }
+            },
+
+            handleAIResponse(result, context) {
+                const msg = result.responses[0];
+                const loadingId = context.loadingId;
+
+                if (msg.status === 'error') {
+                    document.getElementById(loadingId)?.remove();
+                    this.addAIMessage('Erro: ' + msg.statusText, 'ai');
+                } else if (msg.status === 'incomplete') {
+                    // Update loading message with content
+                    const loadingEl = document.getElementById(loadingId);
+                    if (loadingEl && msg.content) {
+                        loadingEl.remove();
+                        this.addAIMessage(msg.content, 'ai', false, loadingId);
+                    }
+                } else if (msg.status === 'complete') {
+                    document.getElementById(loadingId)?.remove();
+                    this.addAIMessage(msg.content, 'ai');
+
+                    // Check if response contains code blocks
+                    this.extractCodeFromAI(msg.content);
+                }
+            },
+
+            addAIMessage(content, type = 'ai', isLoading = false, id = null) {
+                const aiChat = document.getElementById('aiChat');
+                const msg = document.createElement('div');
+                msg.className = 'ai-message';
+                if (id) msg.id = id;
+
+                const isUser = type === 'user';
+                const bgColor = isUser ? 'bg-primary text-white' : 'bg-white dark:bg-dark-elevated';
+                const alignment = isUser ? 'flex-row-reverse' : '';
+                const iconBg = isUser ? 'bg-white text-primary' : 'bg-primary';
+                const icon = isUser ? 'fa-user' : 'fa-robot';
+
+                const processedContent = isLoading ?
+                    `<span class="loading-dots">Processando</span>` :
+                    marked.parse(content);
+
+                msg.innerHTML = `
+                    <div class="flex items-start space-x-3 ${alignment}">
+                        <div class="w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas ${icon} ${isUser ? '' : 'text-white'} text-sm"></i>
+                        </div>
+                        <div class="flex-1 ${bgColor} rounded-lg p-4 shadow-sm max-w-[85%]">
+                            ${!isUser ? '<div class="font-semibold mb-2">Assistente IA</div>' : ''}
+                            <div class="prose prose-sm dark:prose-invert max-w-none ${isUser ? 'text-white' : 'text-gray-700 dark:text-gray-300'}">
+                                ${processedContent}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                aiChat.appendChild(msg);
+                aiChat.scrollTop = aiChat.scrollHeight;
+
+                // Highlight code blocks
+                if (!isLoading) {
+                    msg.querySelectorAll('pre code').forEach((block) => {
+                        Prism.highlightElement(block);
+                    });
+                }
+            },
+
+            extractCodeFromAI(content) {
+                const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+                let match;
+                let foundCode = false;
+
+                while ((match = codeBlockRegex.exec(content)) !== null) {
+                    foundCode = true;
+                    const language = match[1] || 'javascript';
+                    const code = match[2].trim();
+
+                    // Ask if user wants to insert code
+                    setTimeout(() => {
+                        this.showConfirmDialog(
+                            `Código ${language} encontrado na resposta. Deseja inserir no editor?`,
+                            () => {
+                                if (this.currentFile) {
+                                    document.getElementById('editor').value = code;
+                                    this.files[this.currentFile].content = code;
+                                    this.files[this.currentFile].language = language;
+                                    this.currentLanguage = language;
+                                    this.renderFileList();
+                                } else {
+                                    const fileName = `ai-code.${this.getExtension(language)}`;
+                                    this.createFile(fileName, code, language);
+                                    this.openFile(fileName);
+                                }
+                            }
+                        );
+                    }, 500);
+                    break; // Only handle first code block
+                }
+            },
+
+            quickAI(action) {
+                const input = document.getElementById('aiInput');
+                input.value = action;
+                this.sendToAI();
+            },
+
+            showTemplates() {
+                const modal = document.getElementById('templatesModal');
+                const container = modal.querySelector('.grid');
+
+                const templates = [
+                    {
+                        name: 'React Component',
+                        icon: 'fa-react',
+                        language: 'javascript',
+                        code: `import React, { useState } from 'react';
+
+const MyComponent = () => {
+    const [count, setCount] = useState(0);
+
+    return (
+        <div className="container">
+            <h1>Contador: {count}</h1>
+            <button onClick={() => setCount(count + 1)}>
+                Incrementar
+            </button>
+        </div>
+    );
+};
+
+export default MyComponent;`
+                    },
+                    {
+                        name: 'Express API',
+                        icon: 'fa-server',
+                        language: 'javascript',
+                        code: `const express = require('express');
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+
+app.get('/api/users', (req, res) => {
+    res.json({ users: [] });
+});
+
+app.post('/api/users', (req, res) => {
+    const user = req.body;
+    res.status(201).json({ user });
+});
+
+app.listen(PORT, () => {
+    console.log(\`Server running on port \${PORT}\`);
+});`
+                    },
+                    {
+                        name: 'HTML Template',
+                        icon: 'fa-html5',
+                        language: 'html',
+                        code: '<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Minha Página</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: Arial, sans-serif; padding: 20px; }\n        .container { max-width: 1200px; margin: 0 auto; }\n    </style>\n</head>\n<body>\n    <div class="container">\n        <h1>Bem-vindo!</h1>\n        <p>Comece a construir sua aplicação aqui.</p>\n    </div>\n    <script>\n        console.log(\'Página carregada!\');\n    <\/script>\n</body>\n</html>'
+                    },
+                    {
+                        name: 'Python Flask API',
+                        icon: 'fa-python',
+                        language: 'python',
+                        code: `from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    return jsonify({'message': 'Hello from Flask!'})
+
+@app.route('/api/data', methods=['POST'])
+def post_data():
+    data = request.json
+    return jsonify({'received': data}), 201
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)`
+                    },
+                    {
+                        name: 'TypeScript Interface',
+                        icon: 'fa-code',
+                        language: 'typescript',
+                        code: `interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'user';
+}
+
+class UserService {
+    private users: User[] = [];
+
+    addUser(user: User): void {
+        this.users.push(user);
+    }
+
+    getUser(id: number): User | undefined {
+        return this.users.find(u => u.id === id);
+    }
+
+    getAllUsers(): User[] {
+        return this.users;
+    }
+}
+
+const service = new UserService();`
+                    },
+                    {
+                        name: 'CSS Grid Layout',
+                        icon: 'fa-css3-alt',
+                        language: 'css',
+                        code: `.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.grid-item {
+    background: #f0f0f0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}`
+                    }
+                ];
+
+                container.innerHTML = templates.map((template, index) => `
+                    <div class="border border-gray-200 dark:border-dark-border rounded-lg p-4 hover:border-primary transition cursor-pointer"
+                         onclick="app.useTemplate(${index})">
+                        <div class="flex items-center mb-3">
+                            <i class="fab ${template.icon} text-3xl text-primary mr-3"></i>
+                            <h3 class="font-bold">${template.name}</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Template ${template.language}</p>
+                        <button class="mt-3 w-full px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition text-sm">
+                            Usar Template
+                        </button>
+                    </div>
+                `).join('');
+
+                modal.classList.remove('hidden');
+
+                // Store templates for later use
+                this.templates = templates;
+            },
+
+            hideTemplates() {
+                document.getElementById('templatesModal').classList.add('hidden');
+            },
+
+            useTemplate(index) {
+                const template = this.templates[index];
+                const fileName = `${template.name.toLowerCase().replace(/\s+/g, '-')}.${this.getExtension(template.language)}`;
+
+                this.createFile(fileName, template.code, template.language);
+                this.openFile(fileName);
+                this.hideTemplates();
+
+                this.showNotification(`Template "${template.name}" criado!`);
+            },
+
+            toggleTheme() {
+                document.documentElement.classList.toggle('dark');
+            },
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transition = 'opacity 0.3s';
+                    setTimeout(() => notification.remove(), 300);
+                }, 2000);
+            },
+
+            showConfirmDialog(message, onConfirm) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                        <div class="flex justify-end space-x-3">
+                            <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-elevated rounded">
+                                Cancelar
+                            </button>
+                            <button class="px-4 py-2 bg-primary text-white hover:bg-opacity-90 rounded">
+                                Confirmar
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                const buttons = modal.querySelectorAll('button');
+                buttons[0].onclick = () => modal.remove();
+                buttons[1].onclick = () => {
+                    modal.remove();
+                    onConfirm();
+                };
+
+                document.body.appendChild(modal);
+            },
+
+            showAlertDialog(message) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                        <div class="flex justify-end">
+                            <button class="px-4 py-2 bg-primary text-white hover:bg-opacity-90 rounded">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                modal.querySelector('button').onclick = () => modal.remove();
+                document.body.appendChild(modal);
+            },
+
+            showPromptDialog(message, defaultValue = '') {
+                let result = null;
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                        <input type="text" value="${defaultValue}" class="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-bg text-base mb-4">
+                        <div class="flex justify-end space-x-3">
+                            <button class="cancel px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-elevated rounded">
+                                Cancelar
+                            </button>
+                            <button class="confirm px-4 py-2 bg-primary text-white hover:bg-opacity-90 rounded">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                const input = modal.querySelector('input');
+                input.focus();
+                input.select();
+
+                return new Promise((resolve) => {
+                    const cleanup = () => {
+                        modal.remove();
+                    };
+
+                    modal.querySelector('.cancel').onclick = () => {
+                        cleanup();
+                        resolve(null);
+                    };
+
+                    modal.querySelector('.confirm').onclick = () => {
+                        const value = input.value;
+                        cleanup();
+                        resolve(value);
+                    };
+
+                    input.onkeypress = (e) => {
+                        if (e.key === 'Enter') {
+                            const value = input.value;
+                            cleanup();
+                            resolve(value);
+                        }
+                    };
+                });
+            }
+        };
+
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
