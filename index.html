@@ -231,9 +231,25 @@
                 box-shadow: 0 0 5px rgba(196, 30, 58, 0.5);
             }
         }
+
+        .music-button {
+            transition: all 0.3s ease;
+        }
+
+        .music-button.playing {
+            background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+            color: #0A0A0A;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
     </style>
 </head>
 <body class="imperial-bg text-gray-300">
+
+    <!-- Audio Element -->
+    <audio id="backgroundMusic" loop>
+        <source src="Warhammer 40,000 Mechanicus OST - Children of the Omnissiah[Extended] [ztzq05IzYds].mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
 
     <!-- Header -->
     <header class="h-14 header-bg flex items-center justify-between px-4">
@@ -265,8 +281,17 @@
                 <option value="typescript">High Gothic Script</option>
                 <option value="json">Data-Tome Format</option>
             </select>
+            
+            <!-- Music Toggle Button -->
+            <button id="musicToggle" onclick="app.toggleMusic()" class="music-button p-2 rounded hover:bg-dark-elevated transition imperial-border" title="Toggle Background Music">
+                <i class="fas fa-volume-mute text-secondary"></i>
+            </button>
+            
             <button onclick="app.toggleTheme()" class="p-2 rounded hover:bg-dark-elevated transition imperial-border">
                 <i class="fas fa-moon text-secondary"></i>
+            </button>
+            <button onclick="app.showApiConfig()" class="p-2 rounded hover:bg-dark-elevated transition imperial-border" title="Configurar API">
+                <i class="fas fa-key text-secondary"></i>
             </button>
         </div>
     </header>
@@ -335,9 +360,8 @@
                         <input
                             type="text"
                             id="terminalInput"
-                            class="flex-1 bg-transparent border-none outline-none text-base text-green-400"
+                            class="flex-1 bg-transparent border-none outline-none text-base text-green-400 px-2"
                             placeholder="INPUT IMPERATIVE..."
-                            onkeypress="if(event.key==='Enter') app.executeCommand(this.value); this.value='';"
                         >
                     </div>
                 </div>
@@ -357,7 +381,6 @@
                                 id="aiInput"
                                 class="flex-1 px-4 py-2 imperial-border rounded-lg bg-dark-bg text-base text-secondary"
                                 placeholder="PETITION THE TECH-PRIEST: 'CONSTRUCT A FUNCTION FOR...', 'ELUCIDATE THIS COGNOM', ETC."
-                                onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); app.sendToAI(); }"
                             >
                             <button onclick="app.sendToAI()" class="px-6 py-2 button-primary rounded-lg transition">
                                 <i class="fas fa-paper-plane"></i>
@@ -400,6 +423,55 @@
         </div>
     </div>
 
+    <!-- API Configuration Modal -->
+    <div id="apiConfigModal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+        <div class="imperial-bg imperial-border rounded-lg shadow-xl max-w-md w-full pulse-glow">
+            <div class="p-6 imperial-border-bottom flex justify-between items-center">
+                <h2 class="text-2xl font-header font-bold text-secondary">API CONFIGURATION</h2>
+                <button onclick="app.hideApiConfig()" class="text-secondary hover:text-primary">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-secondary mb-2">DeepSeek API Key</label>
+                    <input 
+                        type="password" 
+                        id="apiKeyInput" 
+                        class="w-full px-4 py-2 imperial-border rounded bg-dark-bg text-base text-secondary"
+                        placeholder="Enter your DeepSeek API key"
+                    >
+                    <p class="text-xs text-gray-400 mt-1">
+                        Your API key is stored locally in your browser and never sent to our servers.
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-secondary mb-2">API Base URL</label>
+                    <input 
+                        type="text" 
+                        id="apiUrlInput" 
+                        class="w-full px-4 py-2 imperial-border rounded bg-dark-bg text-base text-secondary"
+                        value="https://api.deepseek.com/v1"
+                        placeholder="https://api.deepseek.com/v1"
+                    >
+                </div>
+                <div class="flex justify-between items-center">
+                    <button onclick="app.testApiConnection()" class="px-4 py-2 button-secondary rounded transition">
+                        Test Connection
+                    </button>
+                    <div class="flex space-x-2">
+                        <button onclick="app.hideApiConfig()" class="px-4 py-2 text-gray-400 hover:bg-dark-elevated rounded imperial-border">
+                            Cancel
+                        </button>
+                        <button onclick="app.saveApiConfig()" class="px-4 py-2 button-primary rounded transition">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Initialize dark mode
         document.documentElement.classList.add('dark');
@@ -411,8 +483,18 @@
             fileCounter: 0,
             activePanel: 'ai',
             terminalHistory: [],
+            terminalHistoryIndex: -1,
+            apiConfig: {
+                key: '',
+                baseUrl: 'https://api.deepseek.com/v1',
+                model: 'deepseek-chat'
+            },
+            isMusicPlaying: false,
 
             init() {
+                // Load API configuration from localStorage
+                this.loadApiConfig();
+                
                 // Create welcome file
                 this.createFile('initiation-cant.js', `// INITIATION CANT - CODEX MECHANICUS 🛠️
 // A FORGE WORLD IDE FOR THE IMPERIUM OF MAN
@@ -440,14 +522,45 @@ imperialGreeting();
                 this.openFile('initiation-cant.js');
                 this.setupEditor();
                 this.setupResizer();
+                this.setupEventListeners();
                 this.addWelcomeAIMessage();
+                this.addWelcomeTerminalMessage();
+            },
 
-                // Register AI handler
-                if (window.Poe && window.Poe.registerHandler) {
-                    window.Poe.registerHandler("code-ai-handler", (result, context) => {
-                        this.handleAIResponse(result, context);
-                    });
+            setupEventListeners() {
+                // Terminal input event listener - CORREÇÃO DO BUG
+                const terminalInput = document.getElementById('terminalInput');
+                terminalInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.executeCommand(terminalInput.value);
+                        terminalInput.value = '';
+                    }
+                });
+
+                // AI input event listener
+                const aiInput = document.getElementById('aiInput');
+                aiInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendToAI();
+                    }
+                });
+
+                // Setup terminal input history navigation
+                this.setupTerminalInput();
+            },
+
+            loadApiConfig() {
+                const savedConfig = localStorage.getItem('deepseekApiConfig');
+                if (savedConfig) {
+                    this.apiConfig = { ...this.apiConfig, ...JSON.parse(savedConfig) };
                 }
+            },
+
+            saveApiConfig() {
+                localStorage.setItem('deepseekApiConfig', JSON.stringify(this.apiConfig));
+                this.showNotification('API configuration saved!');
+                this.hideApiConfig();
             },
 
             setupEditor() {
@@ -492,6 +605,54 @@ imperialGreeting();
                     isResizing = false;
                     document.body.style.cursor = 'default';
                 });
+            },
+
+            setupTerminalInput() {
+                const terminalInput = document.getElementById('terminalInput');
+                
+                terminalInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (this.terminalHistoryIndex > 0) {
+                            this.terminalHistoryIndex--;
+                            terminalInput.value = this.terminalHistory[this.terminalHistoryIndex];
+                        }
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (this.terminalHistoryIndex < this.terminalHistory.length - 1) {
+                            this.terminalHistoryIndex++;
+                            terminalInput.value = this.terminalHistory[this.terminalHistoryIndex];
+                        } else {
+                            this.terminalHistoryIndex = this.terminalHistory.length;
+                            terminalInput.value = '';
+                        }
+                    }
+                });
+            },
+
+            toggleMusic() {
+                const music = document.getElementById('backgroundMusic');
+                const musicButton = document.getElementById('musicToggle');
+                const icon = musicButton.querySelector('i');
+                
+                if (this.isMusicPlaying) {
+                    music.pause();
+                    icon.classList.remove('fa-volume-up');
+                    icon.classList.add('fa-volume-mute');
+                    musicButton.classList.remove('playing');
+                    this.showNotification('Sacred hymns silenced');
+                } else {
+                    music.play().catch(e => {
+                        console.error('Error playing music:', e);
+                        this.showNotification('Error: Could not play sacred hymns');
+                    });
+                    icon.classList.remove('fa-volume-mute');
+                    icon.classList.add('fa-volume-up');
+                    musicButton.classList.add('playing');
+                    this.showNotification('Sacred hymns activated');
+                }
+                
+                this.isMusicPlaying = !this.isMusicPlaying;
             },
 
             createFile(name, content = '', language = 'javascript') {
@@ -658,13 +819,41 @@ imperialGreeting();
                 } else if (this.currentLanguage === 'javascript') {
                     this.switchPanel('terminal');
                     try {
+                        // Capture console.log output
+                        const originalConsoleLog = console.log;
+                        let output = '';
+                        
+                        console.log = function(...args) {
+                            output += args.map(arg => 
+                                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                            ).join(' ') + '\n';
+                            originalConsoleLog.apply(console, args);
+                        };
+                        
                         const result = eval(code);
+                        
+                        // Restore original console.log
+                        console.log = originalConsoleLog;
+                        
                         this.addTerminalLine(`✓ Ritual executed successfully`, 'text-green-400');
+                        
+                        // Display captured console output
+                        if (output) {
+                            this.addTerminalLine('Console Output:', 'text-blue-400');
+                            output.split('\n').forEach(line => {
+                                if (line.trim()) {
+                                    this.addTerminalLine(`  ${line}`, 'text-gray-300');
+                                }
+                            });
+                        }
+                        
+                        // Display return value if any
                         if (result !== undefined) {
-                            this.addTerminalLine(`Output: ${JSON.stringify(result)}`, 'text-blue-400');
+                            this.addTerminalLine(`Return Value: ${JSON.stringify(result, null, 2)}`, 'text-yellow-400');
                         }
                     } catch (error) {
                         this.addTerminalLine(`✗ Ritual failure: ${error.message}`, 'text-red-400');
+                        console.error(error);
                     }
                 } else {
                     this.addTerminalLine(`⚠ Direct execution not supported for ${this.currentLanguage}. Use the Vox-Caster.`, 'text-yellow-400');
@@ -676,6 +865,7 @@ imperialGreeting();
                 if (!cmd.trim()) return;
 
                 this.terminalHistory.push(cmd);
+                this.terminalHistoryIndex = this.terminalHistory.length;
                 this.addTerminalLine(`MACHINE SPIRIT> ${cmd}`, 'text-green-400');
 
                 const parts = cmd.trim().split(' ');
@@ -686,21 +876,35 @@ imperialGreeting();
                         document.getElementById('terminalOutput').innerHTML = '';
                         break;
                     case 'list':
+                        this.addTerminalLine('Repository Contents:', 'text-yellow-400');
                         Object.keys(this.files).forEach(name => {
-                            this.addTerminalLine(name, 'text-blue-400');
+                            this.addTerminalLine(`  ${name}`, 'text-blue-400');
                         });
                         break;
                     case 'display':
                         if (parts[1] && this.files[parts[1]]) {
-                            this.addTerminalLine(this.files[parts[1]].content);
+                            this.addTerminalLine(`Content of ${parts[1]}:`, 'text-yellow-400');
+                            this.addTerminalLine(this.files[parts[1]].content, 'text-gray-300');
                         } else {
                             this.addTerminalLine('Cognom not found in repository', 'text-red-400');
                         }
+                        break;
+                    case 'run':
+                        this.runCode();
+                        break;
+                    case 'save':
+                        this.saveFile();
+                        break;
+                    case 'new':
+                        this.newFile();
                         break;
                     case 'assistance':
                         this.addTerminalLine('Available imperatives:', 'text-yellow-400');
                         this.addTerminalLine('  list - Display repository contents');
                         this.addTerminalLine('  display <cognom> - Show cognom content');
+                        this.addTerminalLine('  run - Execute current cognom');
+                        this.addTerminalLine('  save - Archive current cognom');
+                        this.addTerminalLine('  new - Create new cognom');
                         this.addTerminalLine('  purge - Clear Vox-Caster');
                         this.addTerminalLine('  assistance - Display this information');
                         break;
@@ -718,6 +922,10 @@ imperialGreeting();
                 line.textContent = text;
                 output.appendChild(line);
                 output.scrollTop = output.scrollHeight;
+            },
+
+            addWelcomeTerminalMessage() {
+                this.addTerminalLine('Vox-Caster initialized. Type "assistance" for available commands.', 'text-blue-400');
             },
 
             addWelcomeAIMessage() {
@@ -768,48 +976,99 @@ imperialGreeting();
                 const prompt = `${message}${context}`;
 
                 try {
-                    if (window.Poe && window.Poe.sendUserMessage) {
-                        await window.Poe.sendUserMessage(
-                            `@Claude-Sonnet-4.5 ${prompt}`,
-                            {
-                                handler: "code-ai-handler",
-                                stream: true,
-                                openChat: false,
-                                handlerContext: { loadingId }
-                            }
-                        );
+                    // Try DeepSeek API first if configured
+                    if (this.apiConfig.key) {
+                        await this.callDeepSeekAPI(prompt, loadingId);
                     } else {
-                        // Fallback if Poe API not available
+                        // Fallback to simulated response
                         document.getElementById(loadingId)?.remove();
-                        this.addAIMessage('Poe API not available. Ensure you are using this application within Poe.', 'ai');
+                        this.simulateAIResponse(prompt, loadingId);
                     }
                 } catch (error) {
                     document.getElementById(loadingId)?.remove();
-                    this.addAIMessage(`Ritual Failure: ${error.message}`, 'ai');
+                    this.addAIMessage(
+                        `Ritual Failure: ${error.message}. Please configure your DeepSeek API key in the settings.`, 
+                        'ai'
+                    );
                 }
             },
 
-            handleAIResponse(result, context) {
-                const msg = result.responses[0];
-                const loadingId = context.loadingId;
+            async callDeepSeekAPI(prompt, loadingId) {
+                try {
+                    const response = await fetch(`${this.apiConfig.baseUrl}/chat/completions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.apiConfig.key}`
+                        },
+                        body: JSON.stringify({
+                            model: this.apiConfig.model,
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: 'You are a Tech-Priest Engiseer in the Warhammer 40k universe. You speak in a formal, technical manner with religious reverence for technology. Always respond in character, using terminology like "cognom" for code, "machine spirit" for AI, "ritual" for execution, etc. Provide helpful, detailed explanations about programming concepts while maintaining the 40k aesthetic.'
+                                },
+                                {
+                                    role: 'user',
+                                    content: prompt
+                                }
+                            ],
+                            stream: false,
+                            max_tokens: 4000,
+                            temperature: 0.7
+                        })
+                    });
 
-                if (msg.status === 'error') {
-                    document.getElementById(loadingId)?.remove();
-                    this.addAIMessage('Ritual Failure: ' + msg.statusText, 'ai');
-                } else if (msg.status === 'incomplete') {
-                    // Update loading message with content
-                    const loadingEl = document.getElementById(loadingId);
-                    if (loadingEl && msg.content) {
-                        loadingEl.remove();
-                        this.addAIMessage(msg.content, 'ai', false, loadingId);
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
                     }
-                } else if (msg.status === 'complete') {
-                    document.getElementById(loadingId)?.remove();
-                    this.addAIMessage(msg.content, 'ai');
 
-                    // Check if response contains code blocks
-                    this.extractCodeFromAI(msg.content);
+                    const data = await response.json();
+                    
+                    document.getElementById(loadingId)?.remove();
+                    
+                    if (data.choices && data.choices[0]) {
+                        const aiResponse = data.choices[0].message.content;
+                        this.addAIMessage(aiResponse, 'ai');
+                        
+                        // Check if response contains code blocks
+                        this.extractCodeFromAI(aiResponse);
+                    } else {
+                        throw new Error('Invalid response from DeepSeek API');
+                    }
+                    
+                } catch (error) {
+                    document.getElementById(loadingId)?.remove();
+                    throw error;
                 }
+            },
+
+            simulateAIResponse(prompt, loadingId) {
+                // Simulate API delay
+                setTimeout(() => {
+                    document.getElementById(loadingId)?.remove();
+                    
+                    const responses = {
+                        'explain': `As a Tech-Priest Engiseer, I shall elucidate this cognom for you. The sacred machine spirit appears to be a function that delivers an Imperial greeting. The console shall proclaim "The Emperor Protects!" while the function itself returns a confirmation of cognom initiation. This is a proper beginning to your sacred work, Magos.`,
+                        'optimize': `By the Omnissiah! I have optimized your cognom:\n\n\`\`\`${this.currentLanguage}\n// Optimized Imperial Greeting\nfunction imperialGreeting() {\n    const message = "The Emperor Protects! Cognom sequence initiated. 💀";\n    console.log(message);\n    return message;\n}\n\`\`\``,
+                        'debug': `Through sacred diagnostics, I detect no malfunctions in this cognom. The machine spirit is pure and the ritual should execute without heresy.`,
+                        'default': `I understand your petition regarding "${prompt}". As a Tech-Priest consultation service, I can assist with cognom elucidation, optimization, malfunction detection, and sacred annotations. For full functionality, configure your DeepSeek API key in the settings.`
+                    };
+                    
+                    let response = responses.default;
+                    const lowerPrompt = prompt.toLowerCase();
+                    
+                    if (lowerPrompt.includes('explain') || lowerPrompt.includes('elucidate')) {
+                        response = responses.explain;
+                    } else if (lowerPrompt.includes('optimize')) {
+                        response = responses.optimize;
+                    } else if (lowerPrompt.includes('debug') || lowerPrompt.includes('malfunction')) {
+                        response = responses.debug;
+                    }
+                    
+                    this.addAIMessage(response, 'ai');
+                    this.extractCodeFromAI(response);
+                }, 1500);
             },
 
             addAIMessage(content, type = 'ai', isLoading = false, id = null) {
@@ -890,6 +1149,49 @@ imperialGreeting();
                 const input = document.getElementById('aiInput');
                 input.value = action;
                 this.sendToAI();
+            },
+
+            showApiConfig() {
+                const modal = document.getElementById('apiConfigModal');
+                document.getElementById('apiKeyInput').value = this.apiConfig.key;
+                document.getElementById('apiUrlInput').value = this.apiConfig.baseUrl;
+                modal.classList.remove('hidden');
+            },
+
+            hideApiConfig() {
+                document.getElementById('apiConfigModal').classList.add('hidden');
+            },
+
+            async testApiConnection() {
+                const apiKey = document.getElementById('apiKeyInput').value;
+                const apiUrl = document.getElementById('apiUrlInput').value;
+
+                if (!apiKey) {
+                    this.showAlertDialog('Please enter your DeepSeek API key');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${apiUrl}/models`, {
+                        headers: {
+                            'Authorization': `Bearer ${apiKey}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.showNotification('✓ API connection successful!');
+                    } else {
+                        throw new Error(`API returned status: ${response.status}`);
+                    }
+                } catch (error) {
+                    this.showAlertDialog(`API connection failed: ${error.message}`);
+                }
+            },
+
+            saveApiConfig() {
+                this.apiConfig.key = document.getElementById('apiKeyInput').value;
+                this.apiConfig.baseUrl = document.getElementById('apiUrlInput').value;
+                this.saveApiConfig();
             },
 
             showTemplates() {
