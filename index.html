@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeAI Platform - IDE Full Stack com IA</title>
+    <title>Codex Mechanicus - Forge World IDE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -22,13 +23,18 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#5D5CDE',
+                        primary: '#C41E3A', // Vermelho Adeptus Mechanicus
+                        secondary: '#D4AF37', // Dourado Imperial
                         dark: {
-                            bg: '#181818',
-                            surface: '#1e1e1e',
-                            elevated: '#252525',
-                            border: '#333333'
+                            bg: '#0A0A0A', // Preto espacial
+                            surface: '#1A1A1A', // Cinza escuro
+                            elevated: '#252525', // Cinza médio
+                            border: '#333333' // Cinza claro
                         }
+                    },
+                    fontFamily: {
+                        'header': ['Orbitron', 'sans-serif'],
+                        'mono': ['Share Tech Mono', 'monospace']
                     }
                 }
             }
@@ -44,19 +50,22 @@
 
         body {
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0A0A0A;
         }
 
         .editor-textarea {
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-family: 'Share Tech Mono', 'Monaco', 'Courier New', monospace;
             font-size: 14px;
             line-height: 1.6;
             resize: none;
             tab-size: 4;
+            background-color: #0A0A0A;
+            color: #D4AF37;
         }
 
         .terminal-output {
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-family: 'Share Tech Mono', 'Monaco', 'Courier New', monospace;
             font-size: 13px;
             line-height: 1.5;
         }
@@ -71,29 +80,21 @@
         }
 
         .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #888;
+            background: #C41E3A;
             border-radius: 4px;
         }
 
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #444;
-        }
-
-        .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: #666;
+            background: #A0182E;
         }
 
         .file-item:hover {
-            background: rgba(93, 92, 222, 0.1);
+            background: rgba(196, 30, 58, 0.1);
         }
 
         .file-item.active {
-            background: rgba(93, 92, 222, 0.2);
-            border-left: 3px solid #5D5CDE;
+            background: rgba(196, 30, 58, 0.2);
+            border-left: 3px solid #C41E3A;
         }
 
         .tab-item {
@@ -101,8 +102,8 @@
         }
 
         .tab-item.active {
-            background: #5D5CDE;
-            color: white;
+            background: #C41E3A;
+            color: #0A0A0A;
         }
 
         .ai-message {
@@ -144,44 +145,128 @@
         }
 
         .resizer:hover {
-            background: #5D5CDE;
+            background: #C41E3A;
+        }
+
+        .imperial-border {
+            border: 1px solid #D4AF37;
+        }
+
+        .imperial-border-bottom {
+            border-bottom: 1px solid #D4AF37;
+        }
+
+        .imperial-border-top {
+            border-top: 1px solid #D4AF37;
+        }
+
+        .imperial-border-right {
+            border-right: 1px solid #D4AF37;
+        }
+
+        .imperial-bg {
+            background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%);
+        }
+
+        .header-bg {
+            background: linear-gradient(90deg, #0A0A0A 0%, #1A1A1A 50%, #0A0A0A 100%);
+            border-bottom: 1px solid #D4AF37;
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .sidebar-bg {
+            background: linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%);
+            border-right: 1px solid #D4AF37;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #C41E3A 0%, #A0182E 100%);
+            color: #0A0A0A;
+            border: 1px solid #D4AF37;
+            font-weight: bold;
+        }
+
+        .button-primary:hover {
+            background: linear-gradient(135deg, #A0182E 0%, #801224 100%);
+        }
+
+        .button-secondary {
+            background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+            color: #0A0A0A;
+            border: 1px solid #D4AF37;
+            font-weight: bold;
+        }
+
+        .button-secondary:hover {
+            background: linear-gradient(135deg, #B8941F 0%, #987A0F 100%);
+        }
+
+        .terminal-bg {
+            background-color: #0A0A0A;
+            color: #00FF00;
+            border-top: 1px solid #D4AF37;
+        }
+
+        .aquila-icon {
+            color: #D4AF37;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.7);
+        }
+
+        .skull-icon {
+            color: #C41E3A;
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 5px rgba(196, 30, 58, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(196, 30, 58, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(196, 30, 58, 0.5);
+            }
         }
     </style>
 </head>
-<body class="bg-white dark:bg-dark-bg text-gray-900 dark:text-gray-100">
+<body class="imperial-bg text-gray-300">
 
     <!-- Header -->
-    <header class="h-14 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border flex items-center justify-between px-4 shadow-sm">
+    <header class="h-14 header-bg flex items-center justify-between px-4">
         <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
-                <i class="fas fa-code text-2xl text-primary"></i>
-                <h1 class="text-xl font-bold">CodeAI Platform</h1>
+                <i class="fas fa-skull skull-icon text-2xl"></i>
+                <h1 class="text-xl font-header font-bold text-secondary">CODEX MECHANICUS</h1>
+                <span class="text-xs text-primary font-mono">// FORGE WORLD IDE</span>
             </div>
             <div class="hidden md:flex items-center space-x-2 text-sm">
-                <button onclick="app.newFile()" class="px-3 py-1.5 bg-primary text-white rounded hover:bg-opacity-90 transition">
-                    <i class="fas fa-file-plus mr-1"></i> Novo Arquivo
+                <button onclick="app.newFile()" class="px-3 py-1.5 button-primary rounded transition">
+                    <i class="fas fa-file-plus mr-1"></i> NOVO COGNOM
                 </button>
-                <button onclick="app.saveFile()" class="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition">
-                    <i class="fas fa-save mr-1"></i> Salvar
+                <button onclick="app.saveFile()" class="px-3 py-1.5 button-secondary rounded transition">
+                    <i class="fas fa-save mr-1"></i> SALVAR NO DATASLATE
                 </button>
-                <button onclick="app.runCode()" class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                    <i class="fas fa-play mr-1"></i> Executar
+                <button onclick="app.runCode()" class="px-3 py-1.5 button-primary rounded transition">
+                    <i class="fas fa-play mr-1"></i> EXECUTAR RITUAL
                 </button>
             </div>
         </div>
 
         <div class="flex items-center space-x-3">
-            <select onchange="app.changeLanguage(this.value)" class="px-3 py-1.5 bg-gray-100 dark:bg-dark-elevated border border-gray-300 dark:border-dark-border rounded text-base">
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="typescript">TypeScript</option>
-                <option value="json">JSON</option>
+            <select onchange="app.changeLanguage(this.value)" class="px-3 py-1.5 bg-dark-surface imperial-border rounded text-base text-secondary">
+                <option value="javascript">Binary Cant</option>
+                <option value="python">Techna-Lingua</option>
+                <option value="html">Noosphere Markup</option>
+                <option value="css">Cogitator Styling</option>
+                <option value="typescript">High Gothic Script</option>
+                <option value="json">Data-Tome Format</option>
             </select>
-            <button onclick="app.toggleTheme()" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-dark-elevated transition">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:inline"></i>
+            <button onclick="app.toggleTheme()" class="p-2 rounded hover:bg-dark-elevated transition imperial-border">
+                <i class="fas fa-moon text-secondary"></i>
             </button>
         </div>
     </header>
@@ -190,19 +275,19 @@
     <div class="flex h-[calc(100vh-3.5rem)]">
 
         <!-- Sidebar - File Explorer -->
-        <aside id="sidebar" class="w-64 bg-gray-50 dark:bg-dark-surface border-r border-gray-200 dark:border-dark-border flex flex-col">
-            <div class="p-3 border-b border-gray-200 dark:border-dark-border">
-                <h2 class="font-semibold text-sm flex items-center">
-                    <i class="fas fa-folder-open mr-2 text-primary"></i>
-                    EXPLORADOR DE ARQUIVOS
+        <aside id="sidebar" class="w-64 sidebar-bg flex flex-col">
+            <div class="p-3 imperial-border-bottom">
+                <h2 class="font-semibold text-sm flex items-center text-secondary">
+                    <i class="fas fa-cogs aquila-icon mr-2"></i>
+                    COGNOM REPOSITORIUM
                 </h2>
             </div>
             <div id="fileList" class="flex-1 overflow-y-auto scrollbar-thin p-2">
                 <!-- Files will be listed here -->
             </div>
-            <div class="p-3 border-t border-gray-200 dark:border-dark-border">
-                <button onclick="app.showTemplates()" class="w-full px-3 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition text-sm">
-                    <i class="fas fa-magic mr-2"></i>Templates
+            <div class="p-3 imperial-border-top">
+                <button onclick="app.showTemplates()" class="w-full px-3 py-2 button-primary rounded transition text-sm">
+                    <i class="fas fa-hammer mr-2"></i>STC TEMPLATES
                 </button>
             </div>
         </aside>
@@ -214,7 +299,7 @@
         <main class="flex-1 flex flex-col min-w-0">
 
             <!-- Tabs -->
-            <div id="tabs" class="flex items-center bg-gray-100 dark:bg-dark-elevated border-b border-gray-200 dark:border-dark-border overflow-x-auto scrollbar-thin">
+            <div id="tabs" class="flex items-center bg-dark-elevated imperial-border-bottom overflow-x-auto scrollbar-thin">
                 <!-- Tabs will be added here -->
             </div>
 
@@ -222,74 +307,74 @@
             <div class="flex-1 relative">
                 <textarea
                     id="editor"
-                    class="editor-textarea w-full h-full p-4 bg-white dark:bg-dark-bg text-gray-900 dark:text-gray-100 border-none outline-none scrollbar-thin"
+                    class="editor-textarea w-full h-full p-4 border-none outline-none scrollbar-thin"
                     spellcheck="false"
-                    placeholder="Comece a codificar... ou use o Assistente de IA para ajuda!"
+                    placeholder="INITIATE COGNOM... OR CONSULT THE TECH-PRIEST FOR GUIDANCE!"
                 ></textarea>
             </div>
 
             <!-- Bottom Panel - Terminal/Preview/AI -->
-            <div class="h-80 border-t border-gray-200 dark:border-dark-border flex flex-col">
-                <div class="flex bg-gray-100 dark:bg-dark-elevated border-b border-gray-200 dark:border-dark-border">
-                    <button onclick="app.switchPanel('terminal')" class="tab-item px-4 py-2 text-sm font-medium" data-panel="terminal">
-                        <i class="fas fa-terminal mr-2"></i>Terminal
+            <div class="h-80 imperial-border-top flex flex-col">
+                <div class="flex bg-dark-elevated imperial-border-bottom">
+                    <button onclick="app.switchPanel('terminal')" class="tab-item px-4 py-2 text-sm font-medium imperial-border-right" data-panel="terminal">
+                        <i class="fas fa-terminal mr-2 text-secondary"></i>Vox-Caster
                     </button>
-                    <button onclick="app.switchPanel('preview')" class="tab-item px-4 py-2 text-sm font-medium" data-panel="preview">
-                        <i class="fas fa-eye mr-2"></i>Preview
+                    <button onclick="app.switchPanel('preview')" class="tab-item px-4 py-2 text-sm font-medium imperial-border-right" data-panel="preview">
+                        <i class="fas fa-eye mr-2 text-secondary"></i>Hololith Display
                     </button>
                     <button onclick="app.switchPanel('ai')" class="tab-item active px-4 py-2 text-sm font-medium" data-panel="ai">
-                        <i class="fas fa-robot mr-2"></i>Assistente IA
+                        <i class="fas fa-robot mr-2 text-secondary"></i>Tech-Priest Consultation
                     </button>
                 </div>
 
                 <!-- Terminal Panel -->
-                <div id="terminal-panel" class="hidden flex-1 flex flex-col bg-black text-green-400">
+                <div id="terminal-panel" class="hidden flex-1 flex flex-col terminal-bg">
                     <div id="terminalOutput" class="terminal-output flex-1 overflow-y-auto scrollbar-thin p-4"></div>
-                    <div class="flex items-center p-2 border-t border-gray-700">
-                        <span class="mr-2">$</span>
+                    <div class="flex items-center p-2 imperial-border-top">
+                        <span class="mr-2 text-secondary">MACHINE SPIRIT></span>
                         <input
                             type="text"
                             id="terminalInput"
-                            class="flex-1 bg-transparent border-none outline-none text-base"
-                            placeholder="Digite um comando..."
+                            class="flex-1 bg-transparent border-none outline-none text-base text-green-400"
+                            placeholder="INPUT IMPERATIVE..."
                             onkeypress="if(event.key==='Enter') app.executeCommand(this.value); this.value='';"
                         >
                     </div>
                 </div>
 
                 <!-- Preview Panel -->
-                <div id="preview-panel" class="hidden flex-1 bg-white dark:bg-dark-bg">
+                <div id="preview-panel" class="hidden flex-1 imperial-bg">
                     <iframe id="previewFrame" class="w-full h-full border-none"></iframe>
                 </div>
 
                 <!-- AI Assistant Panel -->
-                <div id="ai-panel" class="flex-1 flex flex-col bg-gray-50 dark:bg-dark-surface">
+                <div id="ai-panel" class="flex-1 flex flex-col bg-dark-surface">
                     <div id="aiChat" class="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4"></div>
-                    <div class="p-4 border-t border-gray-200 dark:border-dark-border">
+                    <div class="p-4 imperial-border-top">
                         <div class="flex space-x-2">
                             <input
                                 type="text"
                                 id="aiInput"
-                                class="flex-1 px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg bg-white dark:bg-dark-bg text-base"
-                                placeholder="Peça ajuda à IA: 'crie uma função para...', 'explique este código', etc."
+                                class="flex-1 px-4 py-2 imperial-border rounded-lg bg-dark-bg text-base text-secondary"
+                                placeholder="PETITION THE TECH-PRIEST: 'CONSTRUCT A FUNCTION FOR...', 'ELUCIDATE THIS COGNOM', ETC."
                                 onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); app.sendToAI(); }"
                             >
-                            <button onclick="app.sendToAI()" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition">
+                            <button onclick="app.sendToAI()" class="px-6 py-2 button-primary rounded-lg transition">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                         <div class="flex flex-wrap gap-2 mt-2">
-                            <button onclick="app.quickAI('Explique este código')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
-                                Explicar código
+                            <button onclick="app.quickAI('Elucidate this cognom')" class="px-3 py-1 text-xs bg-dark-elevated imperial-border rounded hover:bg-dark-border transition">
+                                Elucidate Cognom
                             </button>
-                            <button onclick="app.quickAI('Otimize este código')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
-                                Otimizar
+                            <button onclick="app.quickAI('Optimize this cognom')" class="px-3 py-1 text-xs bg-dark-elevated imperial-border rounded hover:bg-dark-border transition">
+                                Optimize
                             </button>
-                            <button onclick="app.quickAI('Encontre bugs neste código')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
-                                Encontrar bugs
+                            <button onclick="app.quickAI('Locate malfunctions in this cognom')" class="px-3 py-1 text-xs bg-dark-elevated imperial-border rounded hover:bg-dark-border transition">
+                                Locate Malfunctions
                             </button>
-                            <button onclick="app.quickAI('Adicione comentários')" class="px-3 py-1 text-xs bg-gray-200 dark:bg-dark-elevated rounded hover:bg-gray-300 dark:hover:bg-dark-border transition">
-                                Comentar
+                            <button onclick="app.quickAI('Add sacred annotations')" class="px-3 py-1 text-xs bg-dark-elevated imperial-border rounded hover:bg-dark-border transition">
+                                Sacred Annotations
                             </button>
                         </div>
                     </div>
@@ -299,11 +384,11 @@
     </div>
 
     <!-- Templates Modal -->
-    <div id="templatesModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-dark-surface rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div class="p-6 border-b border-gray-200 dark:border-dark-border flex justify-between items-center">
-                <h2 class="text-2xl font-bold">Templates de Código</h2>
-                <button onclick="app.hideTemplates()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+    <div id="templatesModal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+        <div class="imperial-bg imperial-border rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden pulse-glow">
+            <div class="p-6 imperial-border-bottom flex justify-between items-center">
+                <h2 class="text-2xl font-header font-bold text-secondary">STC TEMPLATES</h2>
+                <button onclick="app.hideTemplates()" class="text-secondary hover:text-primary">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -317,16 +402,7 @@
 
     <script>
         // Initialize dark mode
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (event.matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        });
+        document.documentElement.classList.add('dark');
 
         const app = {
             currentFile: null,
@@ -338,30 +414,30 @@
 
             init() {
                 // Create welcome file
-                this.createFile('welcome.js', `// Bem-vindo ao CodeAI Platform! 🚀
-// Uma IDE Full Stack completa com Assistente de IA integrado
+                this.createFile('initiation-cant.js', `// INITIATION CANT - CODEX MECHANICUS 🛠️
+// A FORGE WORLD IDE FOR THE IMPERIUM OF MAN
 
-// Funcionalidades:
-// ✅ Editor de código com syntax highlighting
-// ✅ Sistema de arquivos virtual
-// ✅ Terminal integrado
-// ✅ Preview de aplicações HTML/CSS/JS
-// ✅ Assistente de IA ilimitado para ajuda na codificação
-// ✅ Templates prontos
-// ✅ Suporte a múltiplas linguagens
+// FUNCTIONALITIES:
+// ✅ Cognom Editor with Binary Cant Highlighting
+// ✅ Virtual Dataslate System
+// ✅ Integrated Vox-Caster
+// ✅ Hololith Display for HTML/CSS/JS Applications
+// ✅ Tech-Priest Consultation for Cognom Assistance
+// ✅ STC Templates
+// ✅ Support for Multiple Lingua-Technas
 
-// Comece criando um novo arquivo ou usando um template!
-// Use o Assistente de IA para ajuda na codificação.
+// Begin by creating a new cognom or using an STC template!
+// Consult the Tech-Priest for cognom assistance.
 
-function helloWorld() {
-    console.log("Hello, CodeAI Platform!");
-    return "Pronto para codificar! 💻";
+function imperialGreeting() {
+    console.log("The Emperor Protects!");
+    return "Cognom sequence initiated. 💀";
 }
 
-helloWorld();
+imperialGreeting();
 `, 'javascript');
 
-                this.openFile('welcome.js');
+                this.openFile('initiation-cant.js');
                 this.setupEditor();
                 this.setupResizer();
                 this.addWelcomeAIMessage();
@@ -428,11 +504,11 @@ helloWorld();
             },
 
             newFile() {
-                const name = this.showPromptDialog('Nome do novo arquivo:', `file${++this.fileCounter}.${this.getExtension(this.currentLanguage)}`);
+                const name = this.showPromptDialog('Designation for new cognom:', `cognom${++this.fileCounter}.${this.getExtension(this.currentLanguage)}`);
                 if (!name) return;
 
                 if (this.files[name]) {
-                    this.showAlertDialog('Um arquivo com este nome já existe!');
+                    this.showAlertDialog('A cognom with this designation already exists in the repository!');
                     return;
                 }
 
@@ -462,12 +538,12 @@ helloWorld();
                 const content = document.getElementById('editor').value;
                 this.files[this.currentFile].content = content;
 
-                this.addTerminalLine(`✓ Arquivo '${this.currentFile}' salvo com sucesso!`, 'text-green-400');
-                this.showNotification('Arquivo salvo!');
+                this.addTerminalLine(`✓ Cognom '${this.currentFile}' successfully archived to dataslate!`, 'text-green-400');
+                this.showNotification('Cognom archived!');
             },
 
             deleteFile(name) {
-                this.showConfirmDialog(`Deseja realmente excluir '${name}'?`, () => {
+                this.showConfirmDialog(`Do you wish to purge '${name}' from the repository?`, () => {
                     delete this.files[name];
                     if (this.currentFile === name) {
                         const remaining = Object.keys(this.files);
@@ -497,7 +573,7 @@ helloWorld();
                             <span class="truncate text-sm">${name}</span>
                         </div>
                         <button onclick="event.stopPropagation(); app.deleteFile('${name}')" class="ml-2 text-gray-400 hover:text-red-500">
-                            <i class="fas fa-times"></i>
+                            <i class="fas fa-skull-crossbones"></i>
                         </button>
                     `;
                     fileList.appendChild(div);
@@ -510,10 +586,10 @@ helloWorld();
 
                 Object.keys(this.files).forEach(name => {
                     const button = document.createElement('button');
-                    button.className = `tab-item px-4 py-2 text-sm border-r border-gray-200 dark:border-dark-border ${this.currentFile === name ? 'active' : ''}`;
+                    button.className = `tab-item px-4 py-2 text-sm imperial-border-right ${this.currentFile === name ? 'active' : ''}`;
                     button.innerHTML = `
                         <span>${name}</span>
-                        <i class="fas fa-times ml-2 hover:text-red-500" onclick="event.stopPropagation(); app.deleteFile('${name}')"></i>
+                        <i class="fas fa-skull-crossbones ml-2 hover:text-red-500" onclick="event.stopPropagation(); app.deleteFile('${name}')"></i>
                     `;
                     button.onclick = (e) => {
                         if (e.target.tagName !== 'I') {
@@ -526,12 +602,12 @@ helloWorld();
 
             getFileIcon(language) {
                 const icons = {
-                    javascript: 'fa-js-square',
-                    python: 'fa-python',
-                    html: 'fa-html5',
-                    css: 'fa-css3-alt',
-                    typescript: 'fa-code',
-                    json: 'fa-brackets-curly'
+                    javascript: 'fa-cog',
+                    python: 'fa-microchip',
+                    html: 'fa-eye',
+                    css: 'fa-paint-brush',
+                    typescript: 'fa-scroll',
+                    json: 'fa-database'
                 };
                 return icons[language] || 'fa-file-code';
             },
@@ -578,20 +654,20 @@ helloWorld();
                     this.switchPanel('preview');
                     const iframe = document.getElementById('previewFrame');
                     iframe.srcdoc = code;
-                    this.addTerminalLine('✓ Preview HTML renderizado', 'text-green-400');
+                    this.addTerminalLine('✓ Hololith display activated', 'text-green-400');
                 } else if (this.currentLanguage === 'javascript') {
                     this.switchPanel('terminal');
                     try {
                         const result = eval(code);
-                        this.addTerminalLine(`✓ Executado com sucesso`, 'text-green-400');
+                        this.addTerminalLine(`✓ Ritual executed successfully`, 'text-green-400');
                         if (result !== undefined) {
-                            this.addTerminalLine(`Resultado: ${JSON.stringify(result)}`, 'text-blue-400');
+                            this.addTerminalLine(`Output: ${JSON.stringify(result)}`, 'text-blue-400');
                         }
                     } catch (error) {
-                        this.addTerminalLine(`✗ Erro: ${error.message}`, 'text-red-400');
+                        this.addTerminalLine(`✗ Ritual failure: ${error.message}`, 'text-red-400');
                     }
                 } else {
-                    this.addTerminalLine(`⚠ Execução direta não suportada para ${this.currentLanguage}. Use o terminal.`, 'text-yellow-400');
+                    this.addTerminalLine(`⚠ Direct execution not supported for ${this.currentLanguage}. Use the Vox-Caster.`, 'text-yellow-400');
                     this.switchPanel('terminal');
                 }
             },
@@ -600,36 +676,36 @@ helloWorld();
                 if (!cmd.trim()) return;
 
                 this.terminalHistory.push(cmd);
-                this.addTerminalLine(`$ ${cmd}`, 'text-green-400');
+                this.addTerminalLine(`MACHINE SPIRIT> ${cmd}`, 'text-green-400');
 
                 const parts = cmd.trim().split(' ');
                 const command = parts[0];
 
                 switch(command) {
-                    case 'clear':
+                    case 'purge':
                         document.getElementById('terminalOutput').innerHTML = '';
                         break;
-                    case 'ls':
+                    case 'list':
                         Object.keys(this.files).forEach(name => {
                             this.addTerminalLine(name, 'text-blue-400');
                         });
                         break;
-                    case 'cat':
+                    case 'display':
                         if (parts[1] && this.files[parts[1]]) {
                             this.addTerminalLine(this.files[parts[1]].content);
                         } else {
-                            this.addTerminalLine('Arquivo não encontrado', 'text-red-400');
+                            this.addTerminalLine('Cognom not found in repository', 'text-red-400');
                         }
                         break;
-                    case 'help':
-                        this.addTerminalLine('Comandos disponíveis:', 'text-yellow-400');
-                        this.addTerminalLine('  ls - Listar arquivos');
-                        this.addTerminalLine('  cat <arquivo> - Ver conteúdo');
-                        this.addTerminalLine('  clear - Limpar terminal');
-                        this.addTerminalLine('  help - Mostrar ajuda');
+                    case 'assistance':
+                        this.addTerminalLine('Available imperatives:', 'text-yellow-400');
+                        this.addTerminalLine('  list - Display repository contents');
+                        this.addTerminalLine('  display <cognom> - Show cognom content');
+                        this.addTerminalLine('  purge - Clear Vox-Caster');
+                        this.addTerminalLine('  assistance - Display this information');
                         break;
                     default:
-                        this.addTerminalLine(`Comando não encontrado: ${command}. Digite 'help' para ver comandos disponíveis.`, 'text-red-400');
+                        this.addTerminalLine(`Imperative not recognized: ${command}. Input 'assistance' for available imperatives.`, 'text-red-400');
                 }
 
                 document.getElementById('terminalInput').value = '';
@@ -651,20 +727,20 @@ helloWorld();
                 msg.innerHTML = `
                     <div class="flex items-start space-x-3">
                         <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-robot text-white text-sm"></i>
+                            <i class="fas fa-robot text-dark-bg text-sm"></i>
                         </div>
-                        <div class="flex-1 bg-white dark:bg-dark-elevated rounded-lg p-4 shadow-sm">
-                            <div class="font-semibold mb-2">Assistente IA</div>
-                            <div class="text-gray-700 dark:text-gray-300">
-                                Olá! 👋 Sou seu assistente de IA para codificação. Posso ajudá-lo com:
+                        <div class="flex-1 bg-dark-elevated imperial-border rounded-lg p-4 shadow-sm">
+                            <div class="font-semibold mb-2 text-secondary">TECH-PRIEST ENGISEER</div>
+                            <div class="text-gray-300">
+                                Greetings, Magos! 👋 I am your cognom consultation servitor. I can assist you with:
                                 <ul class="list-disc ml-5 mt-2 space-y-1">
-                                    <li>Escrever código em qualquer linguagem</li>
-                                    <li>Explicar e otimizar código existente</li>
-                                    <li>Encontrar e corrigir bugs</li>
-                                    <li>Sugerir melhorias e boas práticas</li>
-                                    <li>Criar funções e componentes completos</li>
+                                    <li>Constructing cognom in any lingua-techna</li>
+                                    <li>Elucidating and optimizing existing cognom</li>
+                                    <li>Locating and purging malfunctions</li>
+                                    <li>Suggesting improvements and sacred protocols</li>
+                                    <li>Creating complete functions and machine spirits</li>
                                 </ul>
-                                <p class="mt-3">Como posso ajudá-lo hoje?</p>
+                                <p class="mt-3">How may I assist your sacred work today?</p>
                             </div>
                         </div>
                     </div>
@@ -683,11 +759,11 @@ helloWorld();
 
                 // Add loading message
                 const loadingId = 'loading-' + Date.now();
-                this.addAIMessage('Processando', 'ai', true, loadingId);
+                this.addAIMessage('Consulting Machine Spirits', 'ai', true, loadingId);
 
                 // Get current code context
                 const currentCode = document.getElementById('editor').value;
-                const context = currentCode ? `\n\nCódigo atual (${this.currentLanguage}):\n\`\`\`${this.currentLanguage}\n${currentCode}\n\`\`\`` : '';
+                const context = currentCode ? `\n\nCurrent Cognom (${this.currentLanguage}):\n\`\`\`${this.currentLanguage}\n${currentCode}\n\`\`\`` : '';
 
                 const prompt = `${message}${context}`;
 
@@ -705,11 +781,11 @@ helloWorld();
                     } else {
                         // Fallback if Poe API not available
                         document.getElementById(loadingId)?.remove();
-                        this.addAIMessage('API do Poe não disponível. Certifique-se de que está usando este app no Poe.', 'ai');
+                        this.addAIMessage('Poe API not available. Ensure you are using this application within Poe.', 'ai');
                     }
                 } catch (error) {
                     document.getElementById(loadingId)?.remove();
-                    this.addAIMessage(`Erro: ${error.message}`, 'ai');
+                    this.addAIMessage(`Ritual Failure: ${error.message}`, 'ai');
                 }
             },
 
@@ -719,7 +795,7 @@ helloWorld();
 
                 if (msg.status === 'error') {
                     document.getElementById(loadingId)?.remove();
-                    this.addAIMessage('Erro: ' + msg.statusText, 'ai');
+                    this.addAIMessage('Ritual Failure: ' + msg.statusText, 'ai');
                 } else if (msg.status === 'incomplete') {
                     // Update loading message with content
                     const loadingEl = document.getElementById(loadingId);
@@ -743,23 +819,23 @@ helloWorld();
                 if (id) msg.id = id;
 
                 const isUser = type === 'user';
-                const bgColor = isUser ? 'bg-primary text-white' : 'bg-white dark:bg-dark-elevated';
+                const bgColor = isUser ? 'bg-primary text-dark-bg' : 'bg-dark-elevated';
                 const alignment = isUser ? 'flex-row-reverse' : '';
-                const iconBg = isUser ? 'bg-white text-primary' : 'bg-primary';
+                const iconBg = isUser ? 'bg-dark-bg text-primary' : 'bg-primary';
                 const icon = isUser ? 'fa-user' : 'fa-robot';
 
                 const processedContent = isLoading ?
-                    `<span class="loading-dots">Processando</span>` :
+                    `<span class="loading-dots">Consulting Machine Spirits</span>` :
                     marked.parse(content);
 
                 msg.innerHTML = `
                     <div class="flex items-start space-x-3 ${alignment}">
                         <div class="w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas ${icon} ${isUser ? '' : 'text-white'} text-sm"></i>
+                            <i class="fas ${icon} ${isUser ? '' : 'text-dark-bg'} text-sm"></i>
                         </div>
-                        <div class="flex-1 ${bgColor} rounded-lg p-4 shadow-sm max-w-[85%]">
-                            ${!isUser ? '<div class="font-semibold mb-2">Assistente IA</div>' : ''}
-                            <div class="prose prose-sm dark:prose-invert max-w-none ${isUser ? 'text-white' : 'text-gray-700 dark:text-gray-300'}">
+                        <div class="flex-1 ${bgColor} imperial-border rounded-lg p-4 shadow-sm max-w-[85%]">
+                            ${!isUser ? '<div class="font-semibold mb-2 text-secondary">TECH-PRIEST ENGISEER</div>' : ''}
+                            <div class="prose prose-sm dark:prose-invert max-w-none ${isUser ? 'text-dark-bg' : 'text-gray-300'}">
                                 ${processedContent}
                             </div>
                         </div>
@@ -790,7 +866,7 @@ helloWorld();
                     // Ask if user wants to insert code
                     setTimeout(() => {
                         this.showConfirmDialog(
-                            `Código ${language} encontrado na resposta. Deseja inserir no editor?`,
+                            `Cognom ${language} located in response. Insert into editor?`,
                             () => {
                                 if (this.currentFile) {
                                     document.getElementById('editor').value = code;
@@ -799,7 +875,7 @@ helloWorld();
                                     this.currentLanguage = language;
                                     this.renderFileList();
                                 } else {
-                                    const fileName = `ai-code.${this.getExtension(language)}`;
+                                    const fileName = `tech-priest-cognom.${this.getExtension(language)}`;
                                     this.createFile(fileName, code, language);
                                     this.openFile(fileName);
                                 }
@@ -822,28 +898,28 @@ helloWorld();
 
                 const templates = [
                     {
-                        name: 'React Component',
-                        icon: 'fa-react',
+                        name: 'Machine Spirit Component',
+                        icon: 'fa-cog',
                         language: 'javascript',
                         code: `import React, { useState } from 'react';
 
-const MyComponent = () => {
-    const [count, setCount] = useState(0);
+const MachineSpirit = () => {
+    const [purity, setPurity] = useState(100);
 
     return (
-        <div className="container">
-            <h1>Contador: {count}</h1>
-            <button onClick={() => setCount(count + 1)}>
-                Incrementar
+        <div className="cogitator-container">
+            <h1>Purity Level: {purity}%</h1>
+            <button onClick={() => setPurity(purity - 10)}>
+                Perform Rite of Cleansing
             </button>
         </div>
     );
 };
 
-export default MyComponent;`
+export default MachineSpirit;`
                     },
                     {
-                        name: 'Express API',
+                        name: 'Imperial Dataslate API',
                         icon: 'fa-server',
                         language: 'javascript',
                         code: `const express = require('express');
@@ -852,39 +928,39 @@ const PORT = 3000;
 
 app.use(express.json());
 
-app.get('/api/users', (req, res) => {
-    res.json({ users: [] });
+app.get('/api/servitors', (req, res) => {
+    res.json({ servitors: [] });
 });
 
-app.post('/api/users', (req, res) => {
-    const user = req.body;
-    res.status(201).json({ user });
+app.post('/api/servitors', (req, res) => {
+    const servitor = req.body;
+    res.status(201).json({ servitor });
 });
 
 app.listen(PORT, () => {
-    console.log(\`Server running on port \${PORT}\`);
+    console.log(\`Imperial Dataslate active on port \${PORT}\`);
 });`
                     },
                     {
-                        name: 'HTML Template',
-                        icon: 'fa-html5',
+                        name: 'Noosphere Template',
+                        icon: 'fa-eye',
                         language: 'html',
-                        code: '<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Minha Página</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: Arial, sans-serif; padding: 20px; }\n        .container { max-width: 1200px; margin: 0 auto; }\n    </style>\n</head>\n<body>\n    <div class="container">\n        <h1>Bem-vindo!</h1>\n        <p>Comece a construir sua aplicação aqui.</p>\n    </div>\n    <script>\n        console.log(\'Página carregada!\');\n    <\/script>\n</body>\n</html>'
+                        code: '<!DOCTYPE html>\n<html lang="High Gothic">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Imperial Dataslate</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: "Share Tech Mono", monospace; padding: 20px; background: #0A0A0A; color: #D4AF37; }\n        .container { max-width: 1200px; margin: 0 auto; border: 1px solid #C41E3A; padding: 20px; }\n    </style>\n</head>\n<body>\n    <div class="container">\n        <h1>The Emperor Protects!</h1>\n        <p>Initiate your sacred work here.</p>\n    </div>\n    <script>\n        console.log(\'Machine Spirit Awakened!\');\n    <\/script>\n</body>\n</html>'
                     },
                     {
-                        name: 'Python Flask API',
-                        icon: 'fa-python',
+                        name: 'Mechanicus Flask API',
+                        icon: 'fa-microchip',
                         language: 'python',
                         code: `from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    return jsonify({'message': 'Hello from Flask!'})
+@app.route('/api/machine-spirits', methods=['GET'])
+def get_machine_spirits():
+    return jsonify({'message': 'Praise the Omnissiah!'})
 
-@app.route('/api/data', methods=['POST'])
-def post_data():
+@app.route('/api/machine-spirits', methods=['POST'])
+def post_machine_spirits():
     data = request.json
     return jsonify({'received': data}), 201
 
@@ -892,70 +968,71 @@ if __name__ == '__main__':
     app.run(debug=True, port=5000)`
                     },
                     {
-                        name: 'TypeScript Interface',
-                        icon: 'fa-code',
+                        name: 'High Gothic Interface',
+                        icon: 'fa-scroll',
                         language: 'typescript',
-                        code: `interface User {
+                        code: `interface ImperialServitor {
     id: number;
-    name: string;
-    email: string;
-    role: 'admin' | 'user';
+    designation: string;
+    function: string;
+    status: 'active' | 'maintenance' | 'purged';
 }
 
-class UserService {
-    private users: User[] = [];
+class MechanicusService {
+    private servitors: ImperialServitor[] = [];
 
-    addUser(user: User): void {
-        this.users.push(user);
+    addServitor(servitor: ImperialServitor): void {
+        this.servitors.push(servitor);
     }
 
-    getUser(id: number): User | undefined {
-        return this.users.find(u => u.id === id);
+    getServitor(id: number): ImperialServitor | undefined {
+        return this.servitors.find(s => s.id === id);
     }
 
-    getAllUsers(): User[] {
-        return this.users;
+    getAllServitors(): ImperialServitor[] {
+        return this.servitors;
     }
 }
 
-const service = new UserService();`
+const service = new MechanicusService();`
                     },
                     {
-                        name: 'CSS Grid Layout',
-                        icon: 'fa-css3-alt',
+                        name: 'Cogitator Styling',
+                        icon: 'fa-paint-brush',
                         language: 'css',
-                        code: `.grid-container {
+                        code: `.cogitator-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     padding: 20px;
 }
 
-.grid-item {
-    background: #f0f0f0;
+.cogitator-node {
+    background: #1A1A1A;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #C41E3A;
+    box-shadow: 0 2px 4px rgba(196, 30, 58, 0.1);
     transition: transform 0.3s ease;
 }
 
-.grid-item:hover {
+.cogitator-node:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(196, 30, 58, 0.3);
 }`
                     }
                 ];
 
                 container.innerHTML = templates.map((template, index) => `
-                    <div class="border border-gray-200 dark:border-dark-border rounded-lg p-4 hover:border-primary transition cursor-pointer"
+                    <div class="imperial-border rounded-lg p-4 hover:border-primary transition cursor-pointer bg-dark-surface"
                          onclick="app.useTemplate(${index})">
                         <div class="flex items-center mb-3">
-                            <i class="fab ${template.icon} text-3xl text-primary mr-3"></i>
-                            <h3 class="font-bold">${template.name}</h3>
+                            <i class="fas ${template.icon} text-3xl text-primary mr-3"></i>
+                            <h3 class="font-bold text-secondary">${template.name}</h3>
                         </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Template ${template.language}</p>
-                        <button class="mt-3 w-full px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition text-sm">
-                            Usar Template
+                        <p class="text-sm text-gray-400">STC Template ${template.language}</p>
+                        <button class="mt-3 w-full px-4 py-2 button-primary rounded transition text-sm">
+                            ACTIVATE STC
                         </button>
                     </div>
                 `).join('');
@@ -978,16 +1055,17 @@ const service = new UserService();`
                 this.openFile(fileName);
                 this.hideTemplates();
 
-                this.showNotification(`Template "${template.name}" criado!`);
+                this.showNotification(`STC Template "${template.name}" activated!`);
             },
 
             toggleTheme() {
-                document.documentElement.classList.toggle('dark');
+                // Warhammer 40K theme is always dark
+                this.showNotification("The Emperor's light is eternal. Dark mode is permanent.");
             },
 
             showNotification(message) {
                 const notification = document.createElement('div');
-                notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+                notification.className = 'fixed top-20 right-4 bg-primary text-dark-bg px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse imperial-border';
                 notification.textContent = message;
                 document.body.appendChild(notification);
 
@@ -1000,20 +1078,22 @@ const service = new UserService();`
 
             showConfirmDialog(message, onConfirm) {
                 const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50';
                 modal.innerHTML = `
-                    <div class="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                    <div class="imperial-bg imperial-border p-6 rounded-lg shadow-xl max-w-md w-full mx-4 pulse-glow">
+                        <p class="text-gray-300 mb-4">${message}</p>
                         <div class="flex justify-end space-x-3">
-                            <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-elevated rounded">
-                                Cancelar
+                            <button class="cancel px-4 py-2 text-gray-400 hover:bg-dark-elevated rounded imperial-border">
+                                ABORT
                             </button>
-                            <button class="px-4 py-2 bg-primary text-white hover:bg-opacity-90 rounded">
-                                Confirmar
+                            <button class="confirm px-4 py-2 button-primary rounded">
+                                CONFIRM
                             </button>
                         </div>
                     </div>
                 `;
+
+                document.body.appendChild(modal);
 
                 const buttons = modal.querySelectorAll('button');
                 buttons[0].onclick = () => modal.remove();
@@ -1021,19 +1101,17 @@ const service = new UserService();`
                     modal.remove();
                     onConfirm();
                 };
-
-                document.body.appendChild(modal);
             },
 
             showAlertDialog(message) {
                 const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50';
                 modal.innerHTML = `
-                    <div class="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                    <div class="imperial-bg imperial-border p-6 rounded-lg shadow-xl max-w-md w-full mx-4 pulse-glow">
+                        <p class="text-gray-300 mb-4">${message}</p>
                         <div class="flex justify-end">
-                            <button class="px-4 py-2 bg-primary text-white hover:bg-opacity-90 rounded">
-                                OK
+                            <button class="px-4 py-2 button-primary rounded">
+                                ACKNOWLEDGE
                             </button>
                         </div>
                     </div>
@@ -1046,17 +1124,17 @@ const service = new UserService();`
             showPromptDialog(message, defaultValue = '') {
                 let result = null;
                 const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50';
                 modal.innerHTML = `
-                    <div class="bg-white dark:bg-dark-surface p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
-                        <input type="text" value="${defaultValue}" class="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded bg-white dark:bg-dark-bg text-base mb-4">
+                    <div class="imperial-bg imperial-border p-6 rounded-lg shadow-xl max-w-md w-full mx-4 pulse-glow">
+                        <p class="text-gray-300 mb-4">${message}</p>
+                        <input type="text" value="${defaultValue}" class="w-full px-4 py-2 imperial-border rounded bg-dark-bg text-secondary text-base mb-4">
                         <div class="flex justify-end space-x-3">
-                            <button class="cancel px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-elevated rounded">
-                                Cancelar
+                            <button class="cancel px-4 py-2 text-gray-400 hover:bg-dark-elevated rounded imperial-border">
+                                ABORT
                             </button>
-                            <button class="confirm px-4 py-2 bg-primary text-white hover:bg-opacity-90 rounded">
-                                OK
+                            <button class="confirm px-4 py-2 button-primary rounded">
+                                CONFIRM
                             </button>
                         </div>
                     </div>
