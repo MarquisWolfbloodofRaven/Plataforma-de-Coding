@@ -165,4 +165,5 @@ Fork the repository, add your sanctified cognoms or templates. Pull requests mus
 *The Machine God watches. Code with faith, or face the servitor conversion.* 🔴🛠️💀  
 
 **Version 1.0 – Mars Standard Time, M41.999**  
+https://marquiswolfbloodofraven.github.io/Plataforma-de-Coding/
 *End of Dataslate. Glory to the Omnissiah!*
